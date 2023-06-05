@@ -28,7 +28,6 @@
 </script>
 
 <template>
-	<div class="app">
 		<CalculateSection />
 
 		<UsedSection v-if="showUsedSection"/>
@@ -36,7 +35,7 @@
 		<Teleport to="body">
     		<NoMetaModal :show="showMetaModal" @close="showMetaModal = false" />
   		</Teleport>
-  	</div>
+  	
 </template>
 
 <style scoped>

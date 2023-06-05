@@ -1,4 +1,13 @@
 {
+	"abi": [		
+			"function multiply(uint256 a, uint256 b) external returns (uint256)",
+			"function divide(uint256 a, uint256 b) external returns (uint256)",
+			"function add(uint256 a, uint256 b) external returns (uint256)",
+			"function subtract(uint256 a, uint256 b) external returns (uint256)",
+
+			"event Result(string indexed operation, uint256 indexed a, uint256 indexed b, uint256 result)"
+		],
+
 	"contractAddress": "0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5",
 	"chainId": "0xaa36a7"
 }

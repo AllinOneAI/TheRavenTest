@@ -45,20 +45,15 @@
   		await provider.send("eth_requestAccounts", []);
   		const signer = provider.getSigner();
 
-  		const abi = [
-					"function multiply(uint256 a, uint256 b) external returns (uint256)",
-					"function divide(uint256 a, uint256 b) external returns (uint256)",
-					"function add(uint256 a, uint256 b) external returns (uint256)",
-					"function substract(uint256 a, uint256 b) external returns (uint256)",
-				];
+  		
 		const address = config.contractAddress;
-		const contract = new ethers.Contract(address, abi, signer);
+		const contract = new ethers.Contract(address, config.abi, signer);
 
 		const contractFunctions = {
 			multiply: "*",
 			divide: "÷",
 			add: "+",
-			substract: "-"
+			subtract: "-"
 		};
 
 		const contractFunctionsHandlers = {
@@ -71,8 +66,8 @@
 			[contractFunctions.add]: async (_a, _b) => {
 				return contract.add(_a, _b);
 			},
-			[contractFunctions.substract]: async (_a, _b) => {
-				return contract.substract(_a, _b);
+			[contractFunctions.subtract]: async (_a, _b) => {
+				return contract.subtract(_a, _b);
 			},
 		};
 
@@ -132,37 +127,93 @@
 </script>
 
 <template>
-	<div>
-		<button @click="testEvent">TEST</button>
+	<div class="calculate-section">
+		
 		<input type="text" required pattern="^\d*$" 
 			v-model="inputA"
-		/>
-
-		<select v-model="inputOperation">
-			<option value="+">+</option>
-			<option value="-">-</option>
-			<option value="÷">÷</option>
-			<option value="*">*</option>
-		</select>
+			class="input"
+		/> 
+	
+		<div class="selection-holder">
+			<select class="selection" v-model="inputOperation" size="4">
+				<option value="+">+</option>
+				<option value="-">-</option>
+				<option value="÷">÷</option>
+				<option value="*">*</option>
+			</select>
+		</div>
 
 		<input type="text" required pattern="^\d*$" 
 			v-model	="inputB"
+			class="input"
 		/>
-
+		
 		<button 
 			:disabled="buttonStore.calculateButtonDisabled"
 			@click="startTransaction"
+			class="calculate-button"
 		>Calculate</button>
 
-		<label for="result">Result:</label>
-		<span name="result">{{ result }}</span>
+		<div class="result">
+			<label for="result">Result:</label>
+			<span name="result">{{ result }}</span>
+		</div>
+
 	</div>
 
 	<Teleport to="body">
 		<TransactionModal v-if="showTransactionModal"/>
 	</Teleport>
+
 </template>
 
 <style scoped>
 	
+	.calculate-section {
+		width: 100%;
+		height: 80%;
+		padding-top: 10vh;
+	}
+
+	.input {
+		display: block;
+		margin: auto;
+	}
+
+	.calculate-button{
+		display: block;
+		margin: auto;
+	}
+
+	.result{
+		width: max-content;
+		margin: auto;
+	}
+
+	*:focus {
+    	outline: none;
+	}
+
+	.selection {
+		height: 50px;
+		appearance: none;
+		-webkit-appearance: none;
+		background-color: transparent;
+		border: 0;
+	}
+	
+	option {
+		display:inline-block;
+		width: 50px;
+		height: 50px;
+		text-align: center;
+		vertical-align: text-top;
+	}
+	
+	.selection-holder {
+		margin: auto;
+		height: max-content;
+		width: max-content;
+		overflow:hidden;
+	}
 </style>
