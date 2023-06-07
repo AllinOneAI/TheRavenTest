@@ -5,6 +5,9 @@ In case you just want to play with my app, I deployed it on my private server sp
 
 However, i believe you are here for my source code. So... 
 
+## Project Description
+The project is written in JavaScript with Vue.js as front-end framework and with ethers.js as framework for contract interaction.
+
 ## Project Setup
 Firstly, you should install all dependencies with npm.  
 ```sh
