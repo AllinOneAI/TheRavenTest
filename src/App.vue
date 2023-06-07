@@ -15,8 +15,12 @@
 	const showUsedSection = ref(false);
 
 	async function connectMeta() {
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-  		provider.send("eth_requestAccounts", []);
+		try {
+			const provider = new ethers.providers.Web3Provider(window.ethereum);
+  			provider.send("eth_requestAccounts", []);
+  		} catch(error) {
+  			console.log(error);
+  		}
 	}
 
 	function detectMeta() {

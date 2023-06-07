@@ -72,8 +72,8 @@
 
 
 	@keyframes animatetop {
-  		from {top: -500px; opacity: 0.5}
-  		to {top: 0; opacity: 1}
+  		from {margin:  -500px; opacity: 0.5}
+  		to {margin: 5% auto; opacity: 1}
 	}
 
 	@keyframes fadeIn {
