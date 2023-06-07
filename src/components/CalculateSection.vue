@@ -15,12 +15,48 @@
 	const inputB = ref("");
 	const inputOperation = ref("+");
 	const result = ref("");
+	const hideInvalidMessageA = ref(true);
+	const hideInvalidMessageB = ref(true);
 	const showTransactionModal = ref(false);
 
 	watch([inputA, inputB], ([newInputA, newInputB]) => {
   		console.log(regexp.test(newInputA) && regexp.test(newInputB));
   		buttonStore.calculateButtonDisabled = !(regexp.test(newInputA) && regexp.test(newInputB));
   	}, { immediate: true })
+
+	function handleInputA() {
+		if(!regexp.test(inputA.value)) {
+				hideInvalidMessageA.value = false;
+			} else
+				hideInvalidMessageA.value = true;
+	}
+
+	function handleInputB() {
+		if(!regexp.test(inputB)) {
+				hideInvalidMessageB.value = false;
+			} else
+				hideInvalidMessageB.value = true;
+	}
+
+	function handleInput(_input) {
+
+		const inputs = {
+			"A": () => { 
+				if(!regexp.test(inputA.value)) {
+					hideInvalidMessageA.value = true;
+				} else hideInvalidMessageA.value = false;
+			},
+
+			"B": () => {
+				 if(!regexp.test(inputB.value)) {
+					hideInvalidMessageB.value = true;
+				} else hideInvalidMessageB.value = false;
+			}
+		};
+
+		inputs[_input]();
+
+	}
 
 	function getKeyByValue(object, value) {
   		return Object.keys(object).find(key => object[key] === value);
@@ -93,12 +129,8 @@
   		await provider.send("eth_requestAccounts", []);
   		const signer = provider.getSigner();
 
-  		const abi = [
-					"event Result(string indexed operation, uint256 indexed a, uint256 indexed b, uint256 result)"
-				];
-
 		const address = config.contractAddress;
-		const contract = new ethers.Contract(address, abi, signer);
+		const contract = new ethers.Contract(address, config.abi, signer);
 
 		const filter = await contract.filters.Result(_operation, _a, _b);
 		return contract.queryFilter(filter); 
@@ -109,12 +141,8 @@
   		await provider.send("eth_requestAccounts", []);
   		const signer = provider.getSigner();
 
-  		const abi = [
-					"event Result(string indexed operation, uint256 indexed a, uint256 indexed b, uint256 result)"
-				];
-
 		const address = config.contractAddress;
-		const contract = new ethers.Contract(address, abi, signer);
+		const contract = new ethers.Contract(address, config.abi, signer);
 
 		const results = await contract.queryFilter("Result");
 		results.forEach((element) => {
@@ -127,15 +155,23 @@
 </script>
 
 <template>
-	<div class="calculate-section">
 		
-		<input type="text" required pattern="^\d*$" 
+		<a 
+			href="https://sepolia.etherscan.io/address/0x1851ffbce02a134efd9ddbc91920b0c6dcefb6f5#code"
+		 	class="headline"
+		 	target=”_blank”
+		 	>BLOCKCHAIN CALCULATOR</a>
+
+	
+		<input type="text"
+			required pattern="^\d*$" 
+			placeholder="First argument" 
 			v-model="inputA"
 			class="input"
-		/> 
-	
-		<div class="selection-holder">
-			<select class="selection" v-model="inputOperation" size="4">
+			@input="handleInputA"/> 
+		
+		<div class="select-holder">
+			<select class="selection" v-model="inputOperation">
 				<option value="+">+</option>
 				<option value="-">-</option>
 				<option value="÷">÷</option>
@@ -143,77 +179,246 @@
 			</select>
 		</div>
 
-		<input type="text" required pattern="^\d*$" 
+		
+		<input type="text" required 
+			pattern="^\d*$"
+			placeholder="Second argument" 
 			v-model	="inputB"
 			class="input"
+			@input="handleInputB"
 		/>
-		
+
+		<div class="result-wrapper" >
+			<div class="result" v-if="result">
+				<label for="result">Result: </label>
+				<span name="result">{{ result }}</span>
+			</div>
+		</div>
+
 		<button 
 			:disabled="buttonStore.calculateButtonDisabled"
 			@click="startTransaction"
 			class="calculate-button"
 		>Calculate</button>
 
-		<div class="result">
-			<label for="result">Result:</label>
-			<span name="result">{{ result }}</span>
-		</div>
-
-	</div>
 
 	<Teleport to="body">
-		<TransactionModal v-if="showTransactionModal"/>
+		<Transition>
+			<TransactionModal v-if="showTransactionModal"/>
+		</Transition>
 	</Teleport>
 
 </template>
 
 <style scoped>
 	
-	.calculate-section {
-		width: 100%;
-		height: 80%;
-		padding-top: 10vh;
+  	
+  @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+  	*{
+		font-family: Rubik;
 	}
 
 	.input {
 		display: block;
 		margin: auto;
+		margin-bottom: 50px;
 	}
 
 	.calculate-button{
 		display: block;
 		margin: auto;
+		margin-bottom: 50px;
+	}
+
+	.headline{ 
+		margin: auto;
+		width: max-content;
+		display: block;
+		text-decoration:none;
+  		font-size: 80px;
+  		letter-spacing: -3px;
+  		transition: 700ms ease;
+  		font-variation-settings: "wght" 311;
+  		margin-bottom: 50px;
+  		color: PaleGoldenRod;
+  		outline: none;
+  		text-align: center;
+}
+
+	.headline:hover {
+  		font-variation-settings: "wght" 582; 
+  		letter-spacing: 1px;
+  		cursor: pointer;
+	}
+
+	.invalid-message-visible {
+		visibility: visible;
+	}
+	.invalid-message {
+		
+		visibility: hidden;
+	}
+
+	.result-wrapper{
+		height: 50px;
+		width: max-content;
+		margin: auto;
+		margin-bottom: 1%;
+		font-size: 30px;
+		color: white;
+		font-weight: 600; 
 	}
 
 	.result{
-		width: max-content;
-		margin: auto;
-	}
-
-	*:focus {
-    	outline: none;
+		
 	}
 
 	.selection {
-		height: 50px;
+	 	font-weight: 600;
+		display: block;
 		appearance: none;
-		-webkit-appearance: none;
-		background-color: transparent;
-		border: 0;
+  		outline: 0;
+  		border: 0;
+  		box-shadow: none;
+  		padding: 0 0.8em;
+  		color: #fff;
+  		background-color: rgba(0, 0, 0, .2);
+  		background-image: none;
+  		cursor: pointer;
+  		font-size: 1.5rem;
+  		flex:1;
 	}
-	
-	option {
-		display:inline-block;
-		width: 50px;
-		height: 50px;
-		text-align: center;
-		vertical-align: text-top;
-	}
-	
-	.selection-holder {
+
+	.select-holder {
+		border: 2px solid white;
 		margin: auto;
-		height: max-content;
-		width: max-content;
-		overflow:hidden;
+		margin-bottom: 50px;
+  		position: relative;
+  		display: flex;
+  		width: 7em;
+  		height: 40px;
+  		border-radius: .55em;
+  		overflow: hidden;
+}
+
+	.select-holder::after {
+		font-size: 1rem;
+	  	content: '\25BC';
+	  	position: absolute;
+	  	top: 0;
+	  	right: 0;
+	  	padding: 11px;
+	  	background-color: #34495e;
+	  	transition: .25s all ease;
+	  	pointer-events: none;
+	  	color: white;
 	}
+
+	.select-holder:hover::after {
+	  color: #929292;
+	}
+
+	input{
+        width: 50%;
+        color: rgb(36, 35, 42);
+        font-size: 16px;
+        line-height: 20px;
+        min-height: 28px;
+        border-radius: 8px;
+        padding: 8px 16px;
+        border: 2px solid transparent;
+        background: rgb(251, 251, 251);
+        transition: all 0.1s ease 0s;
+        box-shadow: rgba(255, 255, 255, 0.4) 0px 0px 50px 10px
+    }
+	
+	.calculate-button {
+		font-size: 20px; 
+	  	padding: 0.6em 2em;
+	  	border: none;
+	  	outline: none;
+	  	color: black;
+	  	background: #83678C;
+	  	cursor: pointer;
+	  	position: relative;
+	  	z-index: 0;
+	  	border-radius: 10px;
+	  	user-select: none;
+	  	-webkit-user-select: none;
+	  	touch-action: manipulation;
+	}
+	
+	.calculate-button:before {
+	  content: "";
+	  background: linear-gradient(
+	    45deg,
+	    #ff0000,
+	    #ff7300,
+	    #fffb00,
+	    #48ff00,
+	    #00ffd5,
+	    #002bff,
+	    #7a00ff,
+	    #ff00c8,
+	    #ff0000
+	  );
+	  position: absolute;
+	  top: -2px;
+	  left: -2px;
+	  background-size: 400%;
+	  z-index: -1;
+	  filter: blur(5px);
+	  -webkit-filter: blur(5px);
+	  width: calc(100% + 8px);
+	  height: calc(100% + 8px);
+	  animation: glowing-calculate-button 20s linear infinite;
+	  transition: opacity 0.3s ease-in-out;
+	  border-radius: 10px;
+	}
+	
+	@keyframes glowing-calculate-button {
+	  0% {
+	    background-position: 0 0;
+	  }
+	  50% {
+	    background-position: 400% 0;
+	  }
+	  100% {
+	    background-position: 0 0;
+	  }
+	}
+	
+	.calculate-button:after {
+	  z-index: -1;
+	  content: "";
+	  position: absolute;
+	  width: 100%;
+	  height: 100%;
+	  background: white;
+	  left: 0;
+	  top: 0;
+	  border-radius: 10px;
+	}
+	.calculate-button:disabled{
+		color: gray;
+	}
+	.calculate-button:disabled:before{
+		
+		background: linear-gradient(
+	    45deg,
+	      #343434, #4b4b4b, #646464, #7e7e7e, #999999
+	  ); 
+	}
+.v-enter-active,
+	.v-leave-active {
+  		transition: opacity 0.5s ease;
+	}
+
+	.v-enter-from,
+	.v-leave-to {
+		opacity: 0;
+	}
+
 </style>

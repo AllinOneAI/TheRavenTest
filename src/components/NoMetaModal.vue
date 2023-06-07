@@ -11,8 +11,7 @@
 				<h1>MetaMask is not installed 🦊</h1>
 			</div>
 			<div class="modal-body">
-				<h2>Please proceed to metamask.io and install the application to continue working</h2>
-				
+				<h2>Please proceed to metamask.io and install the application to continue</h2>
 			</div>
 			<button class="modal-close" @click="$emit('close')">Got it</button>
 		</div>
