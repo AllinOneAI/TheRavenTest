@@ -5,9 +5,9 @@
 
 	import { ethers } from "../lib/ethers-5.6.esm.min.js"
 	import { ref, watch } from "vue"
-	import { useButtonStore } from "../stores/buttonStore.js"
+	import { useStore } from "../stores/Store.js"
 
-	const buttonStore = useButtonStore();
+	const store = useStore();
 
 	const regexp = new RegExp("^[0-9]+$");
 
@@ -21,7 +21,9 @@
 
 	watch([inputA, inputB], ([newInputA, newInputB]) => {
   		console.log(regexp.test(newInputA) && regexp.test(newInputB));
-  		buttonStore.calculateButtonDisabled = !(regexp.test(newInputA) && regexp.test(newInputB));
+  		if(store.metaIsInstalled) {
+  			store.calculateButtonDisabled = !(regexp.test(newInputA) && regexp.test(newInputB));
+  		}
   	}, { immediate: true })
 
 	function handleInputA() {
@@ -36,26 +38,6 @@
 				hideInvalidMessageB.value = false;
 			} else
 				hideInvalidMessageB.value = true;
-	}
-
-	function handleInput(_input) {
-
-		const inputs = {
-			"A": () => { 
-				if(!regexp.test(inputA.value)) {
-					hideInvalidMessageA.value = true;
-				} else hideInvalidMessageA.value = false;
-			},
-
-			"B": () => {
-				 if(!regexp.test(inputB.value)) {
-					hideInvalidMessageB.value = true;
-				} else hideInvalidMessageB.value = false;
-			}
-		};
-
-		inputs[_input]();
-
 	}
 
 	function getKeyByValue(object, value) {
@@ -110,12 +92,12 @@
 		const transaction = await contractFunctionsHandlers[inputOperation.value](inputA.value, inputB.value);
 
 		showTransactionModal.value = true;
-		buttonStore.disableCalculateButton();
+		store.disableCalculateButton();
 
 		await provider.waitForTransaction(transaction.hash);
 
 		showTransactionModal.value = false;
-		buttonStore.enableCalculateButton();
+		store.enableCalculateButton();
 
 		const events = await getEvents(
 								getKeyByValue(contractFunctions, operation),
@@ -196,7 +178,7 @@
 		</div>
 
 		<button 
-			:disabled="buttonStore.calculateButtonDisabled"
+			:disabled="store.calculateButtonDisabled"
 			@click="startTransaction"
 			class="calculate-button"
 		>Calculate</button>

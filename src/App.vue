@@ -5,22 +5,27 @@
 	
 
 	import { ref, onMounted } from "vue"
-	import { useButtonStore } from "./stores/buttonStore.js"
+	import { useStore } from "./stores/Store.js"
 
-	const buttonStore = useButtonStore();
+	import { ethers } from "./lib/ethers-5.6.esm.min.js"
+
+	const store = useStore();
 
 	const showMetaModal = ref(false);
 	const showUsedSection = ref(false);
 
 	async function connectMeta() {
-		await window.ethereum.request({method: "eth_requestAccounts"});
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+  		provider.send("eth_requestAccounts", []);
 	}
 
 	function detectMeta() {
 		if(!window.ethereum?.isMetaMask) {
 			showMetaModal.value = true;
-			buttonStore.disableCalculateButton();
+			store.calculateButtonDisabled = true;
+			store.metaIsInstalled = false;
 		} else { 
+			store.metaIsInstalled = true;
 			showUsedSection.value = true;
 		}
 	}
@@ -32,7 +37,8 @@
 </script>
 
 <template>
-	<img src="./assets/meta.webp" 
+	<img src="./assets/meta.webp
+	" 
 		class="meta-img"
 		v-if="showUsedSection"
 		@click="connectMeta"	>
