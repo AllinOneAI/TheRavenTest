@@ -92,12 +92,12 @@
 		const transaction = await contractFunctionsHandlers[inputOperation.value](inputA.value, inputB.value);
 
 		showTransactionModal.value = true;
-		store.disableCalculateButton();
+		store.calculateButtonDisabled = true;
 
 		await provider.waitForTransaction(transaction.hash);
 
 		showTransactionModal.value = false;
-		store.enableCalculateButton();
+		store.calculateButtonDisabled = false;
 
 		const events = await getEvents(
 								getKeyByValue(contractFunctions, operation),
