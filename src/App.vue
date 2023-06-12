@@ -65,10 +65,6 @@
 
 <style scoped>
 
-	*{
-		font-family: Rubik;
-	}
-
 	.meta-img{
 		position: absolute;
 		margin: 10px 10px;
