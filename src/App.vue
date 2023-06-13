@@ -41,11 +41,6 @@
 </script>
 
 <template>
-	<img src="./assets/meta.webp
-	" 
-		class="meta-img"
-		v-if="showUsedSection"
-		@click="connectMeta"	>
 	
 	<div class="calculate-section">
 		<CalculateSection  />
